@@ -1,10 +1,12 @@
-
+package application;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+
+import application.GraphNode.GraphNodeState;
 
 /**
  * Created by Joanna Pakosh, 01/2024
@@ -25,13 +27,13 @@ public class DependencyGraph<T> {
 		GraphNode<T> sourceNode = null;
 		GraphNode<T> targetNode = null;
 		if (hasNode(source)) {
-			sourceNode = nodesAndDependencies.get(source);
+			sourceNode = getNode(source);
 		} else {
 			sourceNode = createNode(source);
 			addVertex(source, sourceNode);
 		}
 		if (hasNode(target)) {
-			targetNode = nodesAndDependencies.get(target);
+			targetNode = getNode(target);
 		} else {
 			targetNode = createNode(target);
 			addVertex(target, targetNode);
@@ -39,12 +41,20 @@ public class DependencyGraph<T> {
 		sourceNode.addSuccessors(targetNode);
 	}
 
-	private boolean hasNode(T node) {
+	public GraphNode<T> getNode(T data){
+		return nodesAndDependencies.get(data);
+	}
+
+	public boolean hasNode(T node) {
 		return nodesAndDependencies.containsKey(node);
 	}
 
 	private void addVertex(T data, GraphNode<T> node) {
 		nodesAndDependencies.put(data, node);
+	}
+
+	public boolean removeVertex(T data) {
+		return nodesAndDependencies.remove(data) != null;
 	}
 
 	public GraphNode<T> createNode(T value) {
@@ -55,33 +65,50 @@ public class DependencyGraph<T> {
 		return nodesAndDependencies.values();
 	}
 
-	private List<GraphNode<T>> successors(GraphNode<T> node) {
+	public List<GraphNode<T>> successors(GraphNode<T> node) {
 		return node.getSuccessors();
 	}
 
-	public void topologicalSort() {
-		Stack<GraphNode<T>> output = new Stack<>();
+	public Stack<T> topologicalSort() {
+		Stack<T> output = new Stack<>();
 		for (GraphNode<T> node : getAllGraphNodes()) {
 			if (!node.isProcessed()) {
 				topologicalSorterHelper(node, output);
 			}
 		}
-		while (output.empty() == false) {
-			executeScript(output.pop());
-		}
+		return output;
 	}
 
-	private void topologicalSorterHelper(GraphNode<T> vertex, Stack<GraphNode<T>> output) {
+	private void topologicalSorterHelper(GraphNode<T> vertex, Stack<T> output) {
 		vertex.setState(GraphNode.GraphNodeState.PROCESSED);
 		for (GraphNode<T> node: successors(vertex)) {
 			if (!node.isProcessed()) {
 				topologicalSorterHelper(node, output);
 			}
 		}
-		output.push(vertex);
+		output.add(vertex.getData());
 	}
 
-	private void executeScript(GraphNode<T> node) {
-		System.out.println("echo Executing script : " + node.getData());
+	public boolean hasCircularDependencies() {
+		for (GraphNode<T> vertex : getAllGraphNodes()) {
+			if (!vertex.isProcessed() && checkCycleUtil(vertex)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean checkCycleUtil(GraphNode<T> sourceNode) {
+		sourceNode.setBeingVisited(true);
+		for (GraphNode<T> node : successors(sourceNode)) {
+			if (node.isBeingVisited()) {
+				return true;
+			} else if (!node.isProcessed() && checkCycleUtil(node)) {
+				return true;
+			}
+		}
+		sourceNode.setBeingVisited(false);
+		sourceNode.setState(GraphNodeState.PROCESSED);
+		return false;
 	}
 }

@@ -1,4 +1,4 @@
-
+package application;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by Joanna Pakosh, 01/2024
  */
-final class GraphNode<T> {
+public final  class GraphNode<T> {
 
 	public enum GraphNodeState {
 		NOT_PROCESSED, PROCESSED;
@@ -16,6 +16,7 @@ final class GraphNode<T> {
 	private final T data;
 	private final List<GraphNode<T>> successors;
 	private GraphNodeState state = GraphNodeState.NOT_PROCESSED;
+	private boolean isBeingVisited;
 
 	public GraphNode(T data) {
 		this.data = data;
@@ -40,5 +41,13 @@ final class GraphNode<T> {
 
 	public boolean isProcessed() {
 		return state == GraphNodeState.PROCESSED;
+	}
+
+	public boolean isBeingVisited() {
+		return isBeingVisited;
+	}
+
+	public void setBeingVisited(boolean isBeingVisited) {
+		this.isBeingVisited = isBeingVisited;
 	}
 }
