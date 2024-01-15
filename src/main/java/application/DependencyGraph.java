@@ -86,7 +86,7 @@ public class DependencyGraph<T> {
 				topologicalSorterHelper(node, output);
 			}
 		}
-		output.add(vertex.getData());
+		output.push(vertex.getData());
 	}
 
 	public boolean hasCircularDependencies() {
