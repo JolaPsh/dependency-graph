@@ -1,4 +1,4 @@
-package application;
+package application.dependencygraph;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import application.GraphNode.GraphNodeState;
+import application.dependencygraph.GraphNode.GraphNodeState;;
 
 /**
  * Created by Joanna Pakosh, 01/2024

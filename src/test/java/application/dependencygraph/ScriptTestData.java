@@ -1,4 +1,4 @@
-package application;
+package application.dependencygraph;
 
 import java.util.Arrays;
 import java.util.Collections;
