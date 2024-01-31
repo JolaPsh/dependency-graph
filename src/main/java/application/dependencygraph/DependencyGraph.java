@@ -1,10 +1,12 @@
 package application.dependencygraph;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
+import java.util.Set;
 
 import application.dependencygraph.GraphNode.GraphNodeState;;
 
@@ -53,8 +55,20 @@ public class DependencyGraph<T> {
 		nodesAndDependencies.put(data, node);
 	}
 
-	public boolean removeVertex(T data) {
-		return nodesAndDependencies.remove(data) != null;
+	public void removeVertex(T data) {
+		GraphNode<T> vertex = getNode(data);
+		if (vertex == null) {
+			throw new NotFoundException();
+		}
+		nodesAndDependencies.remove(data);		
+		Set<T> allNodes = nodesAndDependencies.keySet();
+		Iterator<T> iter = allNodes.iterator();
+		while (iter.hasNext()) {
+			GraphNode<T> node = getNode(iter.next());
+			if (node.getSuccessors().contains(vertex)) {
+				node.removeSuccessors(vertex);
+			}
+		}
 	}
 
 	public GraphNode<T> createNode(T value) {
@@ -69,29 +83,29 @@ public class DependencyGraph<T> {
 		return node.getSuccessors();
 	}
 
-	public Stack<T> topologicalSort() {
-		Stack<T> output = new Stack<>();
+	public List<T> topologicalSort() {
+		List<T> output = new ArrayList<>();
 		for (GraphNode<T> node : getAllGraphNodes()) {
-			if (!node.isProcessed()) {
+			if (!node.isVisited()) {
 				topologicalSorterHelper(node, output);
 			}
 		}
 		return output;
 	}
 
-	private void topologicalSorterHelper(GraphNode<T> vertex, Stack<T> output) {
-		vertex.setState(GraphNode.GraphNodeState.PROCESSED);
+	private void topologicalSorterHelper(GraphNode<T> vertex, List<T> output) {
+		vertex.setState(GraphNode.GraphNodeState.VISITED);
 		for (GraphNode<T> node: successors(vertex)) {
-			if (!node.isProcessed()) {
+			if (!node.isVisited()) {
 				topologicalSorterHelper(node, output);
 			}
 		}
-		output.push(vertex.getData());
+		output.add(vertex.getData());
 	}
 
 	public boolean hasCircularDependencies() {
 		for (GraphNode<T> vertex : getAllGraphNodes()) {
-			if (!vertex.isProcessed() && checkCycleUtil(vertex)) {
+			if (!vertex.isVisited() && checkCycleUtil(vertex)) {
 				return true;
 			}
 		}
@@ -99,16 +113,16 @@ public class DependencyGraph<T> {
 	}
 
 	private boolean checkCycleUtil(GraphNode<T> sourceNode) {
-		sourceNode.setBeingVisited(true);
+		sourceNode.setState(GraphNodeState.BEING_VISITED);
 		for (GraphNode<T> node : successors(sourceNode)) {
 			if (node.isBeingVisited()) {
 				return true;
-			} else if (!node.isProcessed() && checkCycleUtil(node)) {
+			} else if (!node.isVisited() && checkCycleUtil(node)) {
 				return true;
 			}
 		}
-		sourceNode.setBeingVisited(false);
-		sourceNode.setState(GraphNodeState.PROCESSED);
+		sourceNode.setState(GraphNodeState.NOT_BEING_VISITED);
+		sourceNode.setState(GraphNodeState.VISITED);
 		return false;
 	}
 }

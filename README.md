@@ -1,4 +1,4 @@
-Denendency graph
+Directed Acyclic Graph (DAG)
 
 How to use this program
 

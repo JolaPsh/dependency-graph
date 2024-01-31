@@ -3,13 +3,12 @@ package application.dependencygraph;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static application.dependencygraph.ScriptTestData.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Stack;
-
 import org.junit.jupiter.api.Test;
 
 /**
@@ -35,12 +34,18 @@ public class DependencyGraphTest {
 	}
 
 	@Test
-	public void testVertexExists() {
+	public void testVertexExists01() {
 		DependencyGraph<VulnerabilityScript> graph = createDependencyGraph(SCRIPTS1);
 		assertTrue(graph.hasNode(SCRIPT5));
 
-		graph.removeVertex(SCRIPT8);
-		assertFalse(graph.hasNode(SCRIPT8));
+		graph.removeVertex(SCRIPT2);
+		assertFalse(graph.hasNode(SCRIPT2));
+	}
+
+	@Test
+	public void testVertexThrowException02() {
+		DependencyGraph<VulnerabilityScript> graph = createDependencyGraph(SCRIPTS1);
+		assertThrows(NotFoundException.class, () -> graph.removeVertex(SCRIPT13));
 	}
 
 	@Test
@@ -58,7 +63,7 @@ public class DependencyGraphTest {
 	@Test
 	public void testCheckTopologicalOrder01() {
 		DependencyGraph<VulnerabilityScript> graph = createDependencyGraph(SCRIPTS1);
-		Stack<VulnerabilityScript> orderedScripts = graph.topologicalSort();
+		List<VulnerabilityScript> orderedScripts = graph.topologicalSort();
 		// check if script3 is executed before script1
 		int beforeElementIdx = orderedScripts.indexOf(SCRIPT3);
 		int afterElementIdx = orderedScripts.indexOf(SCRIPT1);
@@ -68,7 +73,7 @@ public class DependencyGraphTest {
 	@Test
 	public void testCheckTopologicalOrder02() {
 		DependencyGraph<VulnerabilityScript> graph = createDependencyGraph(SCRIPTS1);
-		Stack<VulnerabilityScript> orderedScripts = graph.topologicalSort();
+		List<VulnerabilityScript> orderedScripts = graph.topologicalSort();
 		// check if script8 is executed before script5
 		int beforeElementIdx = orderedScripts.indexOf(SCRIPT8);
 		int afterElementIdx = orderedScripts.indexOf(SCRIPT5);

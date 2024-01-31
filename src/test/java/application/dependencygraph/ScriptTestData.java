@@ -31,6 +31,8 @@ public class ScriptTestData {
 	
 	public static final List<VulnerabilityScript> SCRIPTS2 = Arrays.asList(SCRIPT10, SCRIPT11, SCRIPT12);
 
+	public static final VulnerabilityScript SCRIPT13 = new VulnerabilityScript(13, Collections.emptyList());
+
 	public static DependencyGraph<VulnerabilityScript> createDependencyGraph(List<VulnerabilityScript> scripts) {
 		DependencyGraph<VulnerabilityScript> dependencyGraph = new DependencyGraph<>();
 		Map<Integer, VulnerabilityScript> scriptData = scripts.stream()

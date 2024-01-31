@@ -2,6 +2,7 @@ package application.dependencygraph;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -10,17 +11,17 @@ import java.util.List;
 public final  class GraphNode<T> {
 
 	public enum GraphNodeState {
-		NOT_PROCESSED, PROCESSED;
+		NOT_VISITED, VISITED, NOT_BEING_VISITED, BEING_VISITED
 	}
 
 	private final T data;
 	private final List<GraphNode<T>> successors;
-	private GraphNodeState state = GraphNodeState.NOT_PROCESSED;
-	private boolean isBeingVisited;
+	private final EnumSet<GraphNodeState> state;
 
 	public GraphNode(T data) {
 		this.data = data;
 		this.successors = new ArrayList<>();
+		this.state = EnumSet.of(GraphNodeState.NOT_VISITED);
 	}
 
 	public T getData() {
@@ -31,23 +32,38 @@ public final  class GraphNode<T> {
 		successors.add(node);
 	}
 
+	public void removeSuccessors(GraphNode<T> node) {
+		successors.remove(node);
+	}
+
 	public List<GraphNode<T>> getSuccessors() {
 		return Collections.unmodifiableList(successors);
 	}
 
 	public void setState(GraphNodeState state) {
-		this.state = state;
+		switch (state) {
+			case VISITED:
+				this.state.add(GraphNodeState.VISITED);
+				this.state.remove(GraphNodeState.NOT_VISITED);
+				break;
+			case BEING_VISITED:
+				this.state.add(GraphNodeState.BEING_VISITED);
+				this.state.remove(GraphNodeState.NOT_BEING_VISITED);
+				break;
+			case NOT_BEING_VISITED:
+				this.state.add(GraphNodeState.NOT_BEING_VISITED);
+				this.state.remove(GraphNodeState.BEING_VISITED);
+				break;
+			default:
+				break;
+		}
 	}
 
-	public boolean isProcessed() {
-		return state == GraphNodeState.PROCESSED;
+	public boolean isVisited() {
+		return state.contains(GraphNodeState.VISITED);
 	}
 
 	public boolean isBeingVisited() {
-		return isBeingVisited;
-	}
-
-	public void setBeingVisited(boolean isBeingVisited) {
-		this.isBeingVisited = isBeingVisited;
+		return state.contains(GraphNodeState.BEING_VISITED);
 	}
 }
