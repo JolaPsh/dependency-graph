@@ -65,7 +65,7 @@ public class DependencyGraph<T> {
 		Iterator<T> iter = allNodes.iterator();
 		while (iter.hasNext()) {
 			GraphNode<T> node = getNode(iter.next());
-			if (node.getSuccessors().contains(vertex)) {
+			if (successors(node).contains(vertex)) {
 				node.removeSuccessors(vertex);
 			}
 		}
